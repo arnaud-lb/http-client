@@ -9,11 +9,11 @@ use React\SocketClient\SecureConnector;
 
 class Factory
 {
-    public function create(LoopInterface $loop, Resolver $resolver)
+    public function create(LoopInterface $loop, Resolver $resolver, ProxyConfig $proxyConfig = null)
     {
         $connector = new Connector($loop, $resolver);
         $secureConnector = new SecureConnector($connector, $loop);
 
-        return new Client($connector, $secureConnector);
+        return new Client($connector, $secureConnector, $proxyConfig);
     }
 }
