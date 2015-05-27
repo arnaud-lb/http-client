@@ -65,17 +65,32 @@ class RequestData
         $this->protocolVersion = $version;
     }
 
-    public function __toString()
+    public function toStringURI($uri)
     {
         $headers = $this->mergeDefaultheaders($this->headers);
 
         $data = '';
-        $data .= "{$this->method} {$this->getPath()} HTTP/{$this->protocolVersion}\r\n";
+        $data .= "{$this->method} {$uri} HTTP/{$this->protocolVersion}\r\n";
         foreach ($headers as $name => $value) {
             $data .= "$name: $value\r\n";
         }
         $data .= "\r\n";
 
         return $data;
+    }
+
+    public function toString()
+    {
+        return $this->toStringURI($this->getPath());
+    }
+
+    public function toStringAbsolute()
+    {
+        return $this->toStringURI($this->url);
+    }
+
+    public function __toString()
+    {
+        return $this->toString();
     }
 }

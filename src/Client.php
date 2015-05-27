@@ -8,6 +8,7 @@ class Client
 {
     private $connector;
     private $secureConnector;
+    private $proxyConfig;
 
     public function __construct(ConnectorInterface $connector, ConnectorInterface $secureConnector)
     {
@@ -15,12 +16,12 @@ class Client
         $this->secureConnector = $secureConnector;
     }
 
-    public function request($method, $url, array $headers = [])
+    public function request($method, $url, array $headers = [], ProxyConfig $proxyConfig = null)
     {
         $requestData = new RequestData($method, $url, $headers);
         $connector = $this->getConnectorForScheme($requestData->getScheme());
 
-        return new Request($connector, $requestData);
+        return new Request($connector, $requestData, $proxyConfig);
     }
 
     private function getConnectorForScheme($scheme)

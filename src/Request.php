@@ -25,6 +25,7 @@ class Request implements WritableStreamInterface
 
     private $connector;
     private $requestData;
+    private $proxyConfig;
 
     private $stream;
     private $buffer;
@@ -32,10 +33,11 @@ class Request implements WritableStreamInterface
     private $response;
     private $state = self::STATE_INIT;
 
-    public function __construct(ConnectorInterface $connector, RequestData $requestData)
+    public function __construct(ConnectorInterface $connector, RequestData $requestData, ProxyConfig $proxyConfig = null)
     {
         $this->connector = $connector;
         $this->requestData = $requestData;
+        $this->proxyConfig = $proxyConfig;
     }
 
     public function isWritable()
@@ -67,7 +69,11 @@ class Request implements WritableStreamInterface
                     $stream->on('error', array($this, 'handleError'));
 
                     $requestData->setProtocolVersion('1.0');
-                    $headers = (string) $requestData;
+                    if (null !== $this->proxyConfig) {
+                        $headers = $requestData->toStringAbsolute();
+                    } else {
+                        $headers = $requestData->toString();
+                    }
 
                     $stream->write($headers);
 
@@ -211,8 +217,13 @@ class Request implements WritableStreamInterface
 
     protected function connect()
     {
-        $host = $this->requestData->getHost();
-        $port = $this->requestData->getPort();
+        if (null !== $proxyConfig = $this->proxyConfig) {
+            $host = $proxyConfig->host;
+            $port = $proxyConfig->port;
+        } else {
+            $host = $this->requestData->getHost();
+            $port = $this->requestData->getPort();
+        }
 
         return $this->connector
             ->create($host, $port);
