@@ -3,4 +3,5 @@ Merged:
  - unhide-exceptions
  - proxy-support
  - auth-from-url
+ - drain-event
 
